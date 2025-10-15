@@ -12,46 +12,92 @@
 
 5) Добавить нумерацию выведенных фильмов */
 
-'use strict';
-
-const movieDB = {
+"use strict";
+document.addEventListener("DOMContentLoaded", () => {
+  const movieDB = {
     movies: [
-        "Логан",
-        "Одержимость",
-        "Лига справедливости",
-        "Ла-ла лэнд",
-        
-        "Скотт Пилигрим против..."
-    ]
-};
+      "Логан",
+      "Одержимость",
+      "Лига справедливости",
+      "Ла-ла лэнд",
+      "Скотт Пилигрим против...",
+    ],
+  };
 
-const bg= document.querySelector('.promo__bg'),
-    genre= bg.querySelector('.promo__genre'),
-    filmList= document.querySelector('.promo__interactive-list'),
-    adv = document.querySelectorAll('.promo__adv img');
+  const bg = document.querySelector(".promo__bg"),
+    genre = bg.querySelector(".promo__genre"),
+    filmList = document.querySelector(".promo__interactive-list"),
+    adv = document.querySelectorAll(".promo__adv img"),
+    //дод ел зі стор
+    addForm = document.querySelector("form.add"),
+    addInput = addForm.querySelector(".adding__input"),
+    checkbox = addForm.querySelector('[type="checkbox"]'), //по attr-гал все фо
+    delBtn = filmList.getElementsByClassName("delete");
+  //обробн події відпр ф , відм ст пов
+  addForm.addEventListener("submit", (event) => {
+    event.preventDefault();
 
+    let newFilm = addInput.value; // пм на лет бо змінюєм знач в умові
+    const favorite = checkbox.checked; //галочка true/false
+    if (newFilm) {
+      //true
+      if (newFilm.length > 21) {
+        //обрізання рядка
+        newFilm = `${newFilm.substring(0, 22)}...`;
+      }
+      if (favorite) {
+        console.log("Додано улюблений фільм");
+      }
 
-adv.forEach(item=>{
-    item.remove();
-});
+      movieDB.movies.push(newFilm);
+      sortArr(movieDB.movies);
 
-genre.textContent='ДРАМА';
+      createMovieList(movieDB.movies, filmList);
+    }
+    // знов функціонал форм сп фі
 
-bg.style.backgroundImage = 'url("img/bg.jpg")';
+    //очистка форми
+    event.target.reset();
+  });
 
-filmList.innerHTML='';
+  const delAdv = (arr) => {
+    arr.forEach((item) => {
+      item.remove();
+    });
+  };
 
-const moviesSort=movieDB.movies.sort();
+  const makeChanges = () => {
+    genre.textContent = "ДРАМА";
+    bg.style.backgroundImage = 'url("img/bg.jpg")';
+  };
 
-// function moviesList() {
-   moviesSort.forEach((film, i) => {
-        filmList.innerHTML += `
+  const sortArr = (arr) => {
+    arr.sort();
+  };
+
+  // function moviesList() {
+  //зм на парент і аргум
+  function createMovieList(films, parent) {
+    parent.innerHTML = "";
+    sortArr(films);
+    films.forEach((film, i) => {
+      parent.innerHTML += `
         <li class="promo__interactive-item">${i + 1} ${film}
             <div class="delete"></div>
         </li>
         `;
-    }
-    );
-// };
-// moviesList ();
-
+    });
+    //видалення фільму
+    document.querySelectorAll(".delete").forEach((btn, i) => {
+      btn.addEventListener("click", () => {
+        btn.parentElement.remove();
+        movieDB.movies.splice(i, 1); //виріз з масиву почи з якого номера і  скільки
+        createMovieList(films, parent); //рекурсія
+      });
+    });
+  }
+delAdv(adv);
+  makeChanges(); // };
+  // moviesList ();
+  createMovieList(movieDB.movies, filmList);
+});
